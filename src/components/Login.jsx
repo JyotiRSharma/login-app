@@ -1,12 +1,18 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import { addItem } from "../utils/emailSlice";
 
 const LoginPage = () => {
   const [userEmail, setUserEmail] = useState("");
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleEmailChange = (e) => {
     setUserEmail(e.target.value);
+  };
+
+  const onSubmitHandler = () => {
+    dispatch(addItem(userEmail));
   };
 
   return (
@@ -23,6 +29,7 @@ const LoginPage = () => {
       <Link to="/verify">
       <button
         className="text-white bg-sky-500 hover:bg-sky-700 rounded-lg text-center h-10 mt-4 ml-16 w-24"
+        onClick={onSubmitHandler}
       >
         Send OTP
       </button>
