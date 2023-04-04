@@ -3,6 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { addItem } from "../utils/emailSlice";
 import { addItem as otpAddItem } from "../utils/otpSlice";
+import { currentCounter, clearCounter } from "../utils/counterSlice";
+import CustomDialog from "./dialog/dialog";
+import useDialog from "./dialog/useDialog";
+import Verify from "./Verify";
 
 const LoginPage = () => {
   const [userEmail, setUserEmail] = useState("");
@@ -11,6 +15,10 @@ const LoginPage = () => {
   const [emailCollision, setEmailCollision] = useState(false);
   const dispatch = useDispatch();
   const prevEmail = useSelector((store) => store.email.items);
+  const [counter, setCounter] = useState(
+    useSelector((store) => store.counter.counterValue)
+  );
+  const { isShowing: showOtpPreview, toggle: toggleOptPreview } = useDialog();
 
   useEffect(() => {
     // Make a dummy API call to send an OTP to the email.
@@ -40,14 +48,27 @@ const LoginPage = () => {
     }
   }, [userEmail]);
 
+  useEffect(() => {
+    const timer =
+      counter > 0 && setInterval(() => setCounter(counter - 1), 1000);
+    dispatch(currentCounter(counter));
+    counter === 0 && dispatch(clearCounter());
+    return () => {
+      return clearInterval(timer);
+    };
+  }, [counter]);
+
+  console.log(counter);
+
   const onSubmitHandler = () => {
     setToggleAPI(toggleAPI ? false : true);
     dispatch(addItem(userEmail));
     userOTP && dispatch(otpAddItem(userOTP));
+    toggleOptPreview();
   };
 
   return (
-    <div className="grid place-content-center h-48 mt-52 font-mono">
+    <div className="grid place-content-center fixed top-0 left-0 w-screen h-screen font-mono">
       <label className="text-lg text-center">Enter your email:</label>
       <input
         className="block bg-white border border-slate-300 rounded-md py-2 pl-2 pr-2"
@@ -55,19 +76,23 @@ const LoginPage = () => {
         name="user-email"
         id="user-email"
         value={userEmail}
-        onChange={e => setUserEmail(e.target.value)}
+        onChange={(e) => setUserEmail(e.target.value)}
       />
       {emailCollision ? (
         <label>Previous email matches the current email!</label>
       ) : null}
-      <Link to="/verify">
+      {/* <Link to="/verify"> */}
         <button
-          className="text-white bg-sky-500 hover:bg-sky-700 rounded-lg text-center h-10 mt-4 ml-16 w-24"
+          className="text-white bg-sky-500 hover:bg-sky-700 rounded-lg text-center h-10 mt-2"
           onClick={onSubmitHandler}
         >
           Send OTP
         </button>
-      </Link>
+      {/* </Link> */}
+      <label>{counter}</label>
+      <CustomDialog direction="center" isShowing={showOtpPreview} hide={toggleOptPreview}>
+        <Verify />
+      </CustomDialog>
     </div>
   );
 };
