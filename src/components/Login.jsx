@@ -4,12 +4,13 @@ import useDialog from "./dialog/useDialog";
 import Verify from "./Verify";
 
 const LoginPage = () => {
+  const TIMER_SECONDS = 30;
   const [userEmail, setUserEmail] = useState("");
   const [prevUserEmail, setPrevUserEmail] = useState();
   const [userOTP, setUserOTP] = useState();
   const [toggleAPI, setToggleAPI] = useState(false);
   const [emailCollision, setEmailCollision] = useState(false);
-  const [counter, setCounter] = useState(10);
+  const [counter, setCounter] = useState(TIMER_SECONDS);
   const { isShowing: showOtpPreview, toggle: toggleOptPreview } = useDialog();
   const [isCounterActive, setIsCounterActive] = useState(false);
 
@@ -58,7 +59,7 @@ const LoginPage = () => {
     if (userEmail.length == 0 || (emailCollision && counter !== 0)) {
       return;
     }
-    setCounter(10);
+    setCounter(TIMER_SECONDS);
     setPrevUserEmail(userEmail);
     setIsCounterActive(true);
     setToggleAPI(toggleAPI ? false : true);
