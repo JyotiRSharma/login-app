@@ -11,10 +11,6 @@ function App() {
       path:"/",
       element: <LoginPage />,
       errorElement: <Error />,
-    },
-    {
-      path: "/verify",
-      element: <Verify />
     }
   ])
   return (

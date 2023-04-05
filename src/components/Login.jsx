@@ -1,69 +1,67 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { addItem } from "../utils/emailSlice";
-import { addItem as otpAddItem } from "../utils/otpSlice";
-import { currentCounter, clearCounter } from "../utils/counterSlice";
 import CustomDialog from "./dialog/dialog";
 import useDialog from "./dialog/useDialog";
 import Verify from "./Verify";
 
 const LoginPage = () => {
   const [userEmail, setUserEmail] = useState("");
+  const [prevUserEmail, setPrevUserEmail] = useState();
   const [userOTP, setUserOTP] = useState();
   const [toggleAPI, setToggleAPI] = useState(false);
   const [emailCollision, setEmailCollision] = useState(false);
-  const dispatch = useDispatch();
-  const prevEmail = useSelector((store) => store.email.items);
-  const [counter, setCounter] = useState(
-    useSelector((store) => store.counter.counterValue)
-  );
+  const [counter, setCounter] = useState(10);
   const { isShowing: showOtpPreview, toggle: toggleOptPreview } = useDialog();
+  const [isCounterActive, setIsCounterActive] = useState(false);
 
   useEffect(() => {
-    // Make a dummy API call to send an OTP to the email.
-    const sendOTP = async (emailId) => {
-      const data = await fetch("https://jsonplaceholder.typicode.com/posts", {
-        method: "POST",
-        body: JSON.stringify({
-          email: emailId,
-        }),
-        headers: {
-          "Content-type": "application/json; charset=UTF-8",
-        },
-      });
-      const response = await data.json();
-      // setUserOTP(response.data.otp)
-      setUserOTP(1234);
-    };
-    sendOTP(userEmail);
+    if (showOtpPreview) {
+      sendOTP(userEmail);
+    }
   }, [toggleAPI]);
 
   useEffect(() => {
     // Check if the email is similar to the previous email.
-    if (prevEmail.length > 0 && prevEmail[0] == userEmail) {
+    if (prevUserEmail == userEmail) {
       setEmailCollision(true);
     } else {
       setEmailCollision(false);
     }
-  }, [userEmail]);
+  }, [userEmail, toggleOptPreview]);
 
   useEffect(() => {
-    const timer =
-      counter > 0 && setInterval(() => setCounter(counter - 1), 1000);
-    dispatch(currentCounter(counter));
-    counter === 0 && dispatch(clearCounter());
+    let timer = null;
+    if (isCounterActive && counter > 0) {
+      timer = setInterval(() => setCounter(counter - 1), 1000);
+    }
     return () => {
       return clearInterval(timer);
     };
-  }, [counter]);
+  }, [isCounterActive, toggleAPI, counter]);
 
-  console.log(counter);
+  // Make a dummy API call to send an OTP to the email.
+  const sendOTP = async (emailId) => {
+    const data = await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      body: JSON.stringify({
+        email: emailId,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    });
+    const response = await data.json();
+    // setUserOTP(response.data.otp)
+    setUserOTP(1234);
+  };
 
   const onSubmitHandler = () => {
+    if (userEmail.length == 0 || (emailCollision && counter !== 0)) {
+      return;
+    }
+    setCounter(10);
+    setPrevUserEmail(userEmail);
+    setIsCounterActive(true);
     setToggleAPI(toggleAPI ? false : true);
-    dispatch(addItem(userEmail));
-    userOTP && dispatch(otpAddItem(userOTP));
     toggleOptPreview();
   };
 
@@ -75,23 +73,37 @@ const LoginPage = () => {
         type="email"
         name="user-email"
         id="user-email"
+        autoComplete="off"
         value={userEmail}
         onChange={(e) => setUserEmail(e.target.value)}
       />
-      {emailCollision ? (
-        <label>Previous email matches the current email!</label>
+      {emailCollision && counter !== 0 ? (
+        <div>
+          <label>Previous email matches the current email!</label>
+          <br></br>
+          <label>Please try after {counter} seconds...</label>
+        </div>
       ) : null}
-      {/* <Link to="/verify"> */}
-        <button
-          className="text-white bg-sky-500 hover:bg-sky-700 rounded-lg text-center h-10 mt-2"
-          onClick={onSubmitHandler}
-        >
-          Send OTP
-        </button>
-      {/* </Link> */}
-      <label>{counter}</label>
-      <CustomDialog direction="center" isShowing={showOtpPreview} hide={toggleOptPreview}>
-        <Verify />
+
+      <button
+        className="text-white bg-sky-500 hover:bg-sky-700 rounded-lg text-center h-10 mt-2"
+        onClick={onSubmitHandler}
+      >
+        Send OTP
+      </button>
+
+      <CustomDialog
+        direction="center"
+        isShowing={showOtpPreview}
+        hide={toggleOptPreview}
+      >
+        <Verify
+          email={userEmail}
+          counter={counter}
+          setCounter={setCounter}
+          sendOTP={sendOTP}
+          userOTP={userOTP}
+        />
       </CustomDialog>
     </div>
   );
