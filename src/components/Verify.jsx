@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Verify = ({ email, counter, setCounter, sendOTP, userOTP }) => {
+const Verify = ({ email, counter, setCounter, sendOTP, userOTP, timer_seconds }) => {
   const [otp, setOtp] = useState("");
   const [isOtpValid, setIsOtpValid] = useState();
 
@@ -15,7 +15,7 @@ const Verify = ({ email, counter, setCounter, sendOTP, userOTP }) => {
   const onResendHandler = () => {
     setIsOtpValid(null);
     sendOTP(email);
-    setCounter(10);
+    setCounter(timer_seconds);
     setOtp("");
   }
 
