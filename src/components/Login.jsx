@@ -104,6 +104,7 @@ const LoginPage = () => {
           setCounter={setCounter}
           sendOTP={sendOTP}
           userOTP={userOTP}
+          timer_seconds={TIMER_SECONDS}
         />
       </CustomDialog>
     </div>
