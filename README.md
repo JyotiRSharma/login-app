@@ -1,6 +1,6 @@
 # Finigami OTP login task
 
-This is a software intended to run a task for Finigami OTP login task.
+This is a software intended to run a task for Finigami OTP login.
 
 ## Installation
 
