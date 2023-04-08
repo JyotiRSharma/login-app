@@ -7,6 +7,6 @@ const blogData = {
   },
 };
 
-const BlogContext = createContext(blogData);
+const BlogContext = createContext(blogData);  // Create the context with default value
 
 export default BlogContext;

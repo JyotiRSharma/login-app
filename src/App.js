@@ -25,6 +25,7 @@ function App() {
   ]);
   return (
     <BlogContext.Provider value={user}>
+      {/* Update the BlogContext with new value and have it accessible by other components in the tree */}
       <RouterProvider router={appRouter} />
     </BlogContext.Provider>
   );
