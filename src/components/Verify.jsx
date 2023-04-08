@@ -1,12 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Verify = ({ email, counter, setCounter, sendOTP, userOTP, timer_seconds }) => {
   const [otp, setOtp] = useState("");
   const [isOtpValid, setIsOtpValid] = useState();
+  const navigate = useNavigate();
 
   const onClickHandler= () => {
     if (parseInt(otp) === userOTP) {
       setIsOtpValid(true);
+      navigate("/blog");
     } else {
       setIsOtpValid(false);
     }
